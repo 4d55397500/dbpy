@@ -9,7 +9,7 @@ import logging
 import time
 
 NCOLUMNS = 5
-NROWS = 10**3
+NROWS = 10**4
 
 # for debugging
 logging.info = print
