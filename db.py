@@ -5,9 +5,14 @@
 """
 import random
 import string
+import logging
 
 NCOLUMNS = 5
 NROWS = 10**2
+
+# for debugging
+logging.info = print
+logging.debug = print
 
 
 class BinarySearchTree(object):
@@ -32,13 +37,33 @@ class BinarySearchTree(object):
         # breadth-first print
         if self.value is not None:
             if is_left:
-                print(f'{self.value}, left child of {parent}. rowptr to {self.row}')
+                logging.debug(f'{self.value}, left child of {parent}. rowptr to {self.row}')
                 assert parent is None or self.value < parent
             else:
-                print(f'{self.value}, right child of {parent}. rowptr to {self.row}')
+                logging.debug(f'{self.value}, right child of {parent}. rowptr to {self.row}')
                 assert parent is None or self.value > parent
             self.left.print_tree(self.value, True)
             self.right.print_tree(self.value, False)
+
+
+class Indices(object):
+    def __init__(self, database, cols):
+        self.database = database
+        self.cols = cols
+    def build_indices(self):
+        # build indices over specified columns
+        logging.info('building indices ...')
+        current = self.database
+        indices = [BinarySearchTree() for _ in self.cols]
+        while current is not None:
+            for j, col in enumerate(self.cols):
+                bst = indices[j]
+                entry = current.row_value[col]
+                bst.add(entry, current)
+            current = current.next
+        logging.info('finished building indices.')
+        # for index in indices:
+        # index.print_tree(None, None)
 
 
 class Database(object):
@@ -59,44 +84,28 @@ class Database(object):
         current = self
         i = 0
         while current is not None:
-            print(f'(row {i}) | {"|".join(current.row_value)}')
+            logging.debug(f'(row {i}) | {"|".join(current.row_value)}')
             current = current.next
             i += 1
 
 
 def fill_sample_database():
-    print(f'writing sample database of {NROWS} rows and {NCOLUMNS} columns...')
+    logging.info(f'writing sample database of {NROWS} rows and {NCOLUMNS} columns...')
     strgen = lambda: ''.join(random.choice(string.ascii_lowercase) for _ in range(15))
     nrows, ncols = NROWS, NCOLUMNS
     database = Database()
     for i in range(nrows):
         for j in range(ncols):
             database.add_entry(i, j, strgen())
-    print('finished writing database.')
+    logging.info('finished writing database.')
     #database.print_db()
     return database
 
 
-def build_indices(database, cols):
-    # build indices over specified columns
-    print('building indices ...')
-    current = database
-    indices = [BinarySearchTree() for _ in cols]
-    while current is not None:
-        for j, col in enumerate(cols):
-            bst = indices[j]
-            entry = current.row_value[col]
-            bst.add(entry, current)
-        current = current.next
-    print('finished building indices.')
-    #for index in indices:
-        #index.print_tree(None, None)
-
-
-
 def main():
     database = fill_sample_database()
-    build_indices(database, cols=[0, 2])
+    indices = Indices(database, cols=[0, 2])
+    indices.build_indices()
 
 
 if __name__ == "__main__":
