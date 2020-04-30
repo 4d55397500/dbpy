@@ -65,12 +65,14 @@ class Database(object):
 
 
 def fill_sample_database():
+    print(f'writing sample database of {NROWS} rows and {NCOLUMNS} columns...')
     strgen = lambda: ''.join(random.choice(string.ascii_lowercase) for _ in range(15))
     nrows, ncols = NROWS, NCOLUMNS
     database = Database()
     for i in range(nrows):
         for j in range(ncols):
             database.add_entry(i, j, strgen())
+    print('finished writing database.')
     #database.print_db()
     return database
 
@@ -87,8 +89,8 @@ def build_indices(database, cols):
             bst.add(entry, current)
         current = current.next
     print('finished building indices.')
-    for index in indices:
-        index.print_tree(None, None)
+    #for index in indices:
+        #index.print_tree(None, None)
 
 
 
