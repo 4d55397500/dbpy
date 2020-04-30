@@ -9,7 +9,7 @@ import logging
 import time
 
 NCOLUMNS = 5
-NROWS = 10**4
+NROWS = 10**3
 
 # for debugging
 logging.info = print
@@ -131,11 +131,16 @@ class Database(object):
             i += 1
 
 def fill_sample_database():
-    logging.info(f'writing sample database of {NROWS} rows and {NCOLUMNS} columns...')
+    logging.info(f'Writing sample database of {NROWS} rows and {NCOLUMNS} columns...')
     strgen = lambda: ''.join(random.choice(string.ascii_lowercase) for _ in range(15))
     nrows, ncols = NROWS, NCOLUMNS
     database = Database()
+    progress = [p/10. + 0.1 for p in range(10)]
+    pi = 0
     for i in range(nrows):
+        if i / nrows > progress[pi]:
+            print(f"Finished writing {progress[pi] * 100}% of database.")
+            pi += 1
         for j in range(ncols):
             database.add_entry(i, j, strgen())
     logging.info('finished writing database.')
